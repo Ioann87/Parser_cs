@@ -17,40 +17,40 @@ namespace Test
         {
             var page = 1;
             var check = true;
-            
+
             var url =
                 "https://by-napi.wildberries.ru" +
                 "/api/product/feedback" +
                 "/5736970?brandId=4246" +
                 $"&page={page}&order=Desc&field=Date" +
                 "&withPhoto=False&_app-type=sitemobile";
-            List<Person> persons = new List<Person>();
+            
+            List<Comment> comments = new List<Comment>();
 
             while (check)
             {
                 try
                 {
-                    var response = JObject.Parse(GetResponse(url));
-                    var comments = response["data"]?["feedback"];
+                    var response = JObject.Parse(Connection.GetResponse(url));
+                    var commentRes = response["data"]?["feedback"];
 
-                    if ((int) comments["state"] == -1)
+                    if ((int) commentRes["state"] == -1)
                     {
                         check = false;
                         break;
                     }
 
-                    for (int i = 0; i < comments.Count(); i++)
+                    for (int i = 0; i < commentRes.Count(); i++)
                     {
-                        Person pers = new Person();
+                        Comment comment = new Comment();
+                        comment.Name = (string) commentRes[i]["userName"];
+                        comment.Date = (string) commentRes[i]["date"];
+                        comment.Text = (string) commentRes[i]["text"];
+                        comment.Raiting = (int) commentRes[i]["mark"];
+                        comment.Like = (int) commentRes[i]["votesUp"];
+                        comment.Dislike = (int) commentRes[i]["votesDown"];
 
-                        pers.Name = (string) comments[i]["userName"];
-                        pers.Date = (string) comments[i]["date"];
-                        pers.Text = (string) comments[i]["text"];
-                        pers.Raiting = (int) comments[i]["mark"];
-                        pers.Like = (int) comments[i]["votesUp"];
-                        pers.Dislike = (int) comments[i]["votesDown"];
-
-                        persons.Add(pers);
+                        comments.Add(comment);
                     }
                 }
                 catch (Exception e)
@@ -61,46 +61,7 @@ namespace Test
                 page++;
             }
 
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
-            var file = new FileInfo(@"/home/shastiva/Projects/Test/Test/Feedbacks.xlsx");
-
-            await SaveExcelFile(persons, file);
-        }
-
-        private static async Task SaveExcelFile(List<Person> persons, FileInfo file)
-        {
-            DeleteIfExists(file);
-
-            using var package = new ExcelPackage(file);
-
-            var ws = package.Workbook.Worksheets.Add("Information");
-
-            var range = ws.Cells["A1"].LoadFromCollection(persons, true);
-            range.AutoFitColumns();
-
-
-            await package.SaveAsync();
-        }
-
-        private static void DeleteIfExists(FileInfo file)
-        {
-            if (file.Exists)
-            {
-                file.Delete();
-            }
-        }
-
-        public static String GetResponse(string url)
-        {
-            string htmlCode;
-            using (WebClient client = new WebClient())
-            {
-                client.Encoding = Encoding.UTF8;
-                htmlCode = client.DownloadString(url);
-            }
-
-            return htmlCode;
+            await ExcelWriter.InitTable(comments);
         }
     }
 }
