@@ -13,7 +13,7 @@ namespace Test
 {
     public class ExcelWriter
     {
-        public static async Task InitTable(List<Comment> comments )
+        public static async Task InitTable(List<Comment> comments)
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
@@ -21,7 +21,7 @@ namespace Test
 
             await SaveExcelFile(comments, file);
         }
-        
+
         private static async Task SaveExcelFile(List<Comment> persons, FileInfo file)
         {
             DeleteIfExists(file);

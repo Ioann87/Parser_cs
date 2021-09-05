@@ -24,7 +24,7 @@ namespace Test
                 "/5736970?brandId=4246" +
                 $"&page={page}&order=Desc&field=Date" +
                 "&withPhoto=False&_app-type=sitemobile";
-            
+
             List<Comment> comments = new List<Comment>();
 
             while (check)
@@ -40,18 +40,7 @@ namespace Test
                         break;
                     }
 
-                    for (int i = 0; i < commentRes.Count(); i++)
-                    {
-                        Comment comment = new Comment();
-                        comment.Name = (string) commentRes[i]["userName"];
-                        comment.Date = (string) commentRes[i]["date"];
-                        comment.Text = (string) commentRes[i]["text"];
-                        comment.Raiting = (int) commentRes[i]["mark"];
-                        comment.Like = (int) commentRes[i]["votesUp"];
-                        comment.Dislike = (int) commentRes[i]["votesDown"];
-
-                        comments.Add(comment);
-                    }
+                    Comment.WriteTo(commentRes, comments);
                 }
                 catch (Exception e)
                 {
