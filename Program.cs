@@ -18,17 +18,17 @@ namespace Test
             var page = 1;
             var check = true;
 
-            var url =
+            List<Comment> comments = new List<Comment>();
+
+            while (check)
+            {
+                var url =
                 "https://by-napi.wildberries.ru" +
                 "/api/product/feedback" +
                 "/5736970?brandId=4246" +
                 $"&page={page}&order=Desc&field=Date" +
                 "&withPhoto=False&_app-type=sitemobile";
-
-            List<Comment> comments = new List<Comment>();
-
-            while (check)
-            {
+                
                 try
                 {
                     var response = JObject.Parse(Connection.GetResponse(url));
